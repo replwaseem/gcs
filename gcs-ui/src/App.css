@@ -1,0 +1,58 @@
+.App {
+  text-align: center;
+  display: flex;
+  align-items: first baseline;
+}
+body > iframe {
+  display: none;
+}
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+  background-image: url("./img/ilogo.jpeg");
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+.App-image {
+  background-image: url("./img/ilogo.jpeg"); /* The image used */
+  background-color: #cccccc; /* Used if the image is unavailable */
+  height: 800px; /* You must set a specified height */
+  width: 1500px;
+  background-position: center; /* Center the image */
+  background-repeat: repeat; /* Do not repeat the image */
+  background-size: cover; /* Resize the background image to cover the entire container */
+  position: relative;
+}
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.button1 {
+  background-color: white; 
+  color: black; 
+  border: 2px solid #4CAF50;
+}
+.button1:hover {
+  background-color: #4CAF50;
+  color: white;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
