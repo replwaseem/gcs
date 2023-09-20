@@ -14,17 +14,18 @@ public class DroneService {
     private static final Logger logger = LoggerFactory.getLogger(DroneService.class);
     //@Autowired
     //TODO: fix auto wiring
-    System drone = new System();
+   // System drone = new System();
+    System drone = new System("localhost", 50000);
 
     public void arm() {
         //System drone = new System("localhost", 50000);
         CountDownLatch latch = new CountDownLatch(1);
         drone.getAction().arm()
-                .doOnComplete(() -> logger.debug("Arming..."))
+                .doOnComplete(() -> logger.info("Arming..."))
                 .doOnError(throwable -> logger.error("Failed to arm: "
                         + ((Action.ActionException) throwable).getCode()))
                 .subscribe(latch::countDown, throwable -> latch.countDown());
-
+        log();
         try {
             latch.await();
         } catch (InterruptedException ignored) {
@@ -40,6 +41,7 @@ public class DroneService {
                 .doOnError(throwable -> logger.error("Failed to dis-arm: "
                         + ((Action.ActionException) throwable).getCode()))
                 .subscribe(latch::countDown, throwable -> latch.countDown());
+    //    log();
 
         try {
             latch.await();
@@ -57,6 +59,8 @@ public class DroneService {
                         + ((Action.ActionException) throwable).getCode()))
                 .subscribe(latch::countDown, throwable -> latch.countDown());
 
+        log();
+
         try {
             latch.await();
         } catch (InterruptedException ignored) {
@@ -72,11 +76,42 @@ public class DroneService {
                 .doOnError(throwable -> logger.error("Failed to land: "
                         + ((Action.ActionException) throwable).getCode()))
                 .subscribe(latch::countDown, throwable -> latch.countDown());
+        log();
 
         try {
             latch.await();
         } catch (InterruptedException ignored) {
             // This is expected
         }
+    }
+
+    public void log() {
+        CountDownLatch latch = new CountDownLatch(1);
+
+
+        drone.getLogFiles().getEntries()
+            .toFlowable()
+            .map(entries -> entries.get(entries.size() - 1))
+            .flatMap(lastEntry ->
+                drone.getLogFiles().downloadLogFile(lastEntry, "./example_log1.ulg"))
+            .map(progressData -> Math.round(progressData.getProgress() * 100))
+            .filter(progressPercent -> progressPercent % 5 == 0)
+            .distinctUntilChanged()
+            .subscribe(
+                progressPercent -> {
+                    logger.info("Progress: " + progressPercent + "%");
+                },
+                throwable -> {
+                    logger.error("log Error:  " + throwable.getMessage());
+                    latch.countDown();
+                },
+                () -> {
+                    logger.info("Successfully downloaded last log!");
+                    latch.countDown();
+                });
+
+
+     //   drone.getLogFiles().getEntries().doAfterSuccess(entries -> entries.forEach(java.lang.System.out::println)).doOnError(throwable -> logger.error("failed to log"));
+
     }
 }
